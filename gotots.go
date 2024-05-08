@@ -10,11 +10,7 @@ func NewGotots(file string) *Gotots {
 	return &Gotots{File: file}
 }
 
-func (c *Gotots) GetFile() string {
-	return c.File
-}
-
-func (c *Gotots) ReadFile() string {
+func (c *Gotots) readFile() string {
 	if c.File == "" {
 		return ""
 	}
@@ -31,5 +27,8 @@ func (c *Gotots) ReadFile() string {
 	if err != nil {
 		return ""
 	}
+
+
+	readTheStruct(holder)
 	return string(holder[:count])
 }

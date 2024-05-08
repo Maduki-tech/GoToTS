@@ -1,33 +1,32 @@
-package gotots_test
+package gotots
 
 import (
-	"gotots"
 	"testing"
 )
 
 func TestGotoTs(t *testing.T) {
 	t.Log("TestGotoTs")
-	sut := gotots.NewGotots("test")
-	if sut.GetFile() != "test" {
-		t.Errorf("Expected test, got %s", sut.GetFile())
+	sut := NewGotots("test")
+
+	if sut == nil {
+		t.Error("Expected Gotots object, got nil")
 	}
 }
 
 func TestReadFile(t *testing.T) {
 	t.Log("TestReadFile")
-	sut := gotots.NewGotots("./examples/testing.go")
+	sut := NewGotots("./examples/testing.go")
 	// if file is empty or not found, return empty string
-	if sut.ReadFile() == "" {
-		t.Errorf("Expected empty string, got %s", sut.ReadFile())
+	if sut.readFile() == "" {
+		t.Errorf("Expected empty string, got %s", sut.readFile())
 	}
 }
 
-
 func TestReadFileEmpty(t *testing.T) {
 	t.Log("TestReadFile")
-	sut := gotots.NewGotots("useless string")
+	sut := NewGotots("useless string")
 	// if file is empty or not found, return empty string
-	if sut.ReadFile() != "" {
-		t.Errorf("Expected empty string, got %s", sut.ReadFile())
+	if sut.readFile() != "" {
+		t.Errorf("Expected empty string, got %s", sut.readFile())
 	}
 }
