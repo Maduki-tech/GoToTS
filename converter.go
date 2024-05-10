@@ -2,7 +2,6 @@ package gotots
 
 import (
 	"errors"
-	"log"
 	"strings"
 )
 
@@ -25,10 +24,10 @@ func readTheStruct(content []byte) ([]TypeBuilder, error) {
 		if line == "" || line == "\n" {
 			continue
 		}
+
 		splittedLine := strings.Split(line, " ")
 		if splittedLine[0] == "type" {
 			isStruct = true
-			log.Println("Type found: ", splittedLine[1])
 			typeBuilder := TypeBuilder{name: splittedLine[1]}
 			typeBuilders = append(typeBuilders, typeBuilder)
 			continue
@@ -42,15 +41,13 @@ func readTheStruct(content []byte) ([]TypeBuilder, error) {
 			cleanLine := removeEmpty(splittedLine)
 
 			field := Field{name: cleanLine[0], typ: cleanLine[1]}
-			// mapTypes(&field)
+			mapTypes(&field)
 			typeBuilders[len(typeBuilders)-1].fields = append(typeBuilders[len(typeBuilders)-1].fields, field)
 		}
 
 	}
 
-	log.Println("TypeBuilders: ", typeBuilders)
 	return typeBuilders, nil
-
 }
 
 func convertStructToTsType(structInput TypeBuilder) (string, error) {
@@ -62,15 +59,18 @@ func convertStructToTsType(structInput TypeBuilder) (string, error) {
 		return "", errors.New("Struct has no fields")
 	}
 
-	var tsType string
-	tsType = "export type " + structInput.name + " = {\n"
+	return generateTsString(structInput), nil
+}
 
-	for _, field := range structInput.fields {
+func generateTsString(input TypeBuilder) string {
+	var tsType string
+	tsType = "export type " + input.name + " = {\n"
+
+	for _, field := range input.fields {
 		tsType += "\t" + strings.Trim(field.name, "\t") + ": " + field.typ + "\n"
 	}
 	tsType += "}\n"
-
-	return tsType, nil
+	return tsType
 }
 
 func removeEmpty(s []string) []string {
