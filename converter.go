@@ -1,6 +1,7 @@
 package gotots
 
 import (
+	"errors"
 	"log"
 	"strings"
 )
@@ -15,6 +16,7 @@ type Field struct {
 	typ  string
 }
 
+// Create a struct with the content of the files struct
 func readTheStruct(content []byte) ([]TypeBuilder, error) {
 	fileContent := string(content)
 	typeBuilders := make([]TypeBuilder, 0)
@@ -45,10 +47,29 @@ func readTheStruct(content []byte) ([]TypeBuilder, error) {
 
 	}
 
-
 	log.Println("TypeBuilders: ", typeBuilders)
 	return typeBuilders, nil
 
+}
+
+func convertStructToTsType(structInput TypeBuilder) (string, error) {
+	if structInput.name == "" {
+		return "", errors.New("Struct name is empty")
+	}
+
+	if len(structInput.fields) == 0 {
+		return "", errors.New("Struct has no fields")
+	}
+
+	var tsType string
+	tsType = "export type " + structInput.name + " = {\n"
+
+	for _, field := range structInput.fields {
+		tsType += "\t" + field.name + ": " + field.typ + "\n"
+	}
+	tsType += "}\n"
+
+	return tsType, nil
 }
 
 func removeEmpty(s []string) []string {
