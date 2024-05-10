@@ -42,6 +42,7 @@ func readTheStruct(content []byte) ([]TypeBuilder, error) {
 			cleanLine := removeEmpty(splittedLine)
 
 			field := Field{name: cleanLine[0], typ: cleanLine[1]}
+			// mapTypes(&field)
 			typeBuilders[len(typeBuilders)-1].fields = append(typeBuilders[len(typeBuilders)-1].fields, field)
 		}
 

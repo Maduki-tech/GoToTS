@@ -85,8 +85,8 @@ func (c *Gotots) writeToFile(outputFile string, content string) error {
 
 	defer file.Close()
 
-	_, err = file.WriteString(content)
-	if err != nil {
+	// append content to file
+	if _, err := file.WriteString(content); err != nil {
 		return err
 	}
 
