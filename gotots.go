@@ -1,6 +1,10 @@
 package gotots
 
-import "os"
+import (
+	"errors"
+	"os"
+	"path/filepath"
+)
 
 type Gotots struct {
 	File string
@@ -10,28 +14,45 @@ func NewGotots(file string) *Gotots {
 	return &Gotots{File: file}
 }
 
-func (c *Gotots) readFile() string {
+func (c *Gotots) ConvertToTs(outputFile string) error {
+	types, err := c.readFile()
+
+	if err != nil {
+		return err
+	}
+
+	for _, tsType := range types {
+		err = c.writeToFile(outputFile, tsType)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (c *Gotots) readFile() ([]string, error) {
 	if c.File == "" {
-		return ""
+		return nil, errors.New("File path is empty")
 	}
 
 	file, err := os.Open(c.File)
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
 	defer file.Close()
 
 	holder := make([]byte, 1024)
-	count, err := file.Read(holder)
+	_, err = file.Read(holder)
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
 	typeStruct, err := readTheStruct(holder)
 
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
 	typescriptTypes := make([]string, 0)
@@ -39,25 +60,25 @@ func (c *Gotots) readFile() string {
 	for _, structInput := range typeStruct {
 		typescriptType, err := convertStructToTsType(structInput)
 		if err != nil {
-			return err.Error()
+			return nil, err
 		}
 
 		typescriptTypes = append(typescriptTypes, typescriptType)
 	}
 
-	for _, tsType := range typescriptTypes {
-		err := writeToFile(tsType)
-		if err != nil {
-			return err.Error()
-		}
-	}
-
-
-	return string(holder[:count])
+	return typescriptTypes, nil
 }
 
-func writeToFile(content string) error {
-	file, err := os.Create("output.d.ts")
+func (c *Gotots) writeToFile(outputFile string, content string) error {
+
+	//if subdirectory does not exist, create it
+	if err := os.MkdirAll(filepath.Dir(outputFile), 0755); err != nil {
+		return nil
+	}
+
+	os.Create(outputFile)
+
+	file, err := os.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
