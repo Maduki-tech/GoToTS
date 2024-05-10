@@ -2,6 +2,7 @@ package gotots
 
 import (
 	"errors"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -14,15 +15,17 @@ func NewGotots(file string) *Gotots {
 	return &Gotots{File: file}
 }
 
-func (c *Gotots) ConvertToTs(outputFile string) error {
-	types, err := c.readFile()
+func (g *Gotots) ConvertToTs(outputFile string) error {
+	g.clearFile(outputFile)
+
+	types, err := g.readFile()
 
 	if err != nil {
 		return err
 	}
 
 	for _, tsType := range types {
-		err = c.writeToFile(outputFile, tsType)
+		err = g.writeToFile(outputFile, tsType)
 		if err != nil {
 			return err
 		}
@@ -31,12 +34,12 @@ func (c *Gotots) ConvertToTs(outputFile string) error {
 	return nil
 }
 
-func (c *Gotots) readFile() ([]string, error) {
-	if c.File == "" {
+func (g *Gotots) readFile() ([]string, error) {
+	if g.File == "" {
 		return nil, errors.New("File path is empty")
 	}
 
-	file, err := os.Open(c.File)
+	file, err := os.Open(g.File)
 	if err != nil {
 		return nil, err
 	}
@@ -69,14 +72,14 @@ func (c *Gotots) readFile() ([]string, error) {
 	return typescriptTypes, nil
 }
 
-func (c *Gotots) writeToFile(outputFile string, content string) error {
+func (g *Gotots) writeToFile(outputFile string, content string) error {
 
 	//if subdirectory does not exist, create it
 	if err := os.MkdirAll(filepath.Dir(outputFile), 0755); err != nil {
 		return nil
 	}
 
-	os.Create(outputFile)
+	log.Println("Content: \n", content)
 
 	file, err := os.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -87,6 +90,14 @@ func (c *Gotots) writeToFile(outputFile string, content string) error {
 
 	// append content to file
 	if _, err := file.WriteString(content); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *Gotots) clearFile(file string) error {
+	if err := os.Remove(file); err != nil {
 		return err
 	}
 

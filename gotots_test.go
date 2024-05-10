@@ -74,5 +74,4 @@ func readFileAndReturnLine(file string) int {
 	}
 
 	return lines
-
 }

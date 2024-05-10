@@ -66,7 +66,7 @@ func convertStructToTsType(structInput TypeBuilder) (string, error) {
 	tsType = "export type " + structInput.name + " = {\n"
 
 	for _, field := range structInput.fields {
-		tsType += "\t" + field.name + ": " + field.typ + "\n"
+		tsType += "\t" + strings.Trim(field.name, "\t") + ": " + field.typ + "\n"
 	}
 	tsType += "}\n"
 
